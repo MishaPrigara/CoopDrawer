@@ -5,7 +5,6 @@ var server = app.listen(3000);
 
 app.use(express.static('public'));
 
-console.log("dorou");
 
 var socket = require('socket.io');
 
@@ -19,7 +18,6 @@ function newConnection(socket) {
 	socket.on('mouse', mouseMsg);
 
 	function mouseMsg(data) {
-		console.log("received: " + data.x + ", " + data.y);
 		socket.broadcast.emit('mouse', data);
 	}
 }
