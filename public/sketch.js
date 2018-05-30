@@ -11,7 +11,7 @@ function setup() {
 
 	console.log(frameRate());
 
-	socket = io.connect('http://10.89.100.54:3000/');
+	socket = io.connect('http://172.30.113.154:8080/');
 	socket.on('mouse', newDrawing);
 }
 
