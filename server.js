@@ -11,8 +11,15 @@ var socket = require('socket.io');
 
 var io = socket(server);
 
-io.socket.on('connection', newConnection);
+io.sockets.on('connection', newConnection);
 
 function newConnection(socket) {
-	console.log(socket);
+	//console.log("New connection: " + socket.id);
+
+	socket.on('mouse', mouseMsg);
+
+	function mouseMsg(data) {
+		console.log("received: " + data.x + ", " + data.y);
+		socket.broadcast.emit('mouse', data);
+	}
 }
