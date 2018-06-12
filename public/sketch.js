@@ -2,6 +2,12 @@ var socket;
 var r = 30;
 var fr = 120;
 var locked = false;
+var prevMouseX = -1;
+var prevMouseY = -1;
+
+function getRandomInt(max) {
+  return Math.floor(Math.random() * Math.floor(max));
+}
 
 function setup() {
 	console.log(frameRate());
@@ -11,18 +17,24 @@ function setup() {
 
 	console.log(frameRate());
 
-	socket = io.connect('http://172.30.113.154:8080/');
+	socket = io.connect('http://10.89.100.54:3000/');
 	socket.on('mouse', newDrawing);
 }
 
 function newDrawing(data) {
-	noStroke();
-	fill(255, 0, 100);
-	ellipse(data.x, data.y, data.r, data.r);
+	// noStroke();
+	strokeWeight(data.r);
+	// fill(255, 0, 100);
+	colorMode(RGB, 100);
+	stroke(data.color_x, data.color_y, 100);
+
+	line(data.px * windowWidth, data.py * windowHeight,
+					data.x * windowWidth, data.y * windowHeight);
 }
 
 function mouseWheel(event) {
 	this.r -= event.delta / 20;
+	this.r = max(this.r, 0);
 	document.getElementById('Size').innerHTML = "Size: " + this.r;
 }
 
@@ -33,19 +45,40 @@ function mousePressed() {
 
 function mouseReleased() {
 	locked = false;
+	prevMouseX = -1;
 }
 
 function draw() {
 	if(locked) {
-		var data = {
-			x: mouseX,
-			y: mouseY,
-			r: this.r
-		};
 
-		socket.emit('mouse', data);
-		noStroke();
-		fill(255);
-		ellipse(mouseX, mouseY, this.r, this.r);
+		if(prevMouseX != -1) {
+
+			var x = mouseX;
+			var y = mouseY;
+			var color_x = getRandomInt(255);
+			var color_y = getRandomInt(255);
+			var data = {
+				px: prevMouseX / windowWidth,
+				py: prevMouseY / windowHeight,
+				x: x / windowWidth,
+				y: y / windowHeight,
+				r: this.r,
+				color_x: color_x,
+				color_y: color_y
+			};
+
+			socket.emit('mouse', data);
+			strokeWeight(this.r);
+			// fill(255, 0, 100);
+			colorMode(RGB, 100);
+			stroke(color_x, color_y, 100);
+
+			line(prevMouseX, prevMouseY, x, y);
+			prevMouseX = x;
+			prevMouseY = y;
+		} else {
+			prevMouseX = mouseX;
+			prevMouseY = mouseY;
+		}
 	}
 }
