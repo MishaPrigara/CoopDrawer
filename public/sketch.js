@@ -1,9 +1,33 @@
+/*
+TODO list:
+- add init data after login
+- don't forget to delete user after disconection
+- find out how to set to data to users of the same group
+hope i'll do it
+
+*/
 var socket;
 var r = 30;
 var fr = 120;
 var locked = false;
 var prevMouseX = -1;
 var prevMouseY = -1;
+var user = new User();
+
+
+function login() {
+	user.login();
+	socket.emit('checkLogin', user);
+}
+
+function processLogin(ok) {
+	if(!ok) {
+		local.reload();
+	}
+	user.deleteLogin();
+	background(15);
+	socket.emit('getData', user.getGroupName());
+}
 
 function getRandomInt(max) {
   return Math.floor(Math.random() * Math.floor(max));
@@ -13,22 +37,26 @@ function setup() {
 	console.log(frameRate());
 	frameRate(fr);
 	createCanvas(windowWidth, windowHeight);
-	background(51);
+	background(160, 169, 204);
 
 	console.log(frameRate());
 
 	socket = io.connect('http://localhost:3000/');
 	socket.on('mouse', newDrawing);
 	socket.on('init', initDrawing);
+	socket.on('checkedLogin', processLogin);
 }
 
 function initDrawing(dataArr) {
+	if(!user.isLogged()) return;
+	document.getElementById('Size').innerHTML = "Size: 30";
 	for(var i = 0; i < dataArr.length; ++i) {
 		newDrawing(dataArr[i]);
 	}
 }
 
 function newDrawing(data) {
+	if(!user.isLogged()) return;
 	// noStroke();
 	strokeWeight(data.r);
 	// fill(255, 0, 100);
@@ -40,22 +68,26 @@ function newDrawing(data) {
 }
 
 function mouseWheel(event) {
+	if(!user.isLogged()) return;
 	this.r -= event.delta / 20;
 	this.r = max(this.r, 0);
 	document.getElementById('Size').innerHTML = "Size: " + this.r;
 }
 
 function mousePressed() {
+	if(!user.isLogged()) return;
 	//console.log(mouseX + "," + mouseY);
 	locked = true;
 }
 
 function mouseReleased() {
+	if(!user.isLogged()) return;
 	locked = false;
 	prevMouseX = -1;
 }
 
 function draw() {
+	if(!user.isLogged()) return;
 	if(locked) {
 
 		if(prevMouseX != -1) {
