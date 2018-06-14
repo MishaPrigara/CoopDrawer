@@ -17,8 +17,15 @@ function setup() {
 
 	console.log(frameRate());
 
-	socket = io.connect('http://10.89.100.54:3000/');
+	socket = io.connect('http://localhost:3000/');
 	socket.on('mouse', newDrawing);
+	socket.on('init', initDrawing);
+}
+
+function initDrawing(dataArr) {
+	for(var i = 0; i < dataArr.length; ++i) {
+		newDrawing(dataArr[i]);
+	}
 }
 
 function newDrawing(data) {
