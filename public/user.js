@@ -5,9 +5,12 @@ function User() {
 
 
 	this.login = function() {
-		this.logged = true;
 		this.groupName = document.getElementById("name").value;
 		this.password = document.getElementById("password").value;
+	}
+
+	this.setLogged = function(flag) {
+		this.logged = flag;
 	}
 
 	this.deleteLogin = function() {

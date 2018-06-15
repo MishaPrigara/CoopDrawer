@@ -1,9 +1,7 @@
 /*
 TODO list:
-- add init data after login
-- don't forget to delete user after disconection
-- find out how to set to data to users of the same group
-hope i'll do it
+
+gg
 
 */
 var socket;
@@ -15,9 +13,20 @@ var prevMouseY = -1;
 var user = new User();
 
 
+function keypressed() {
+	if(event.key === 'Enter') {
+		login();
+	}
+}
+
 function login() {
 	user.login();
-	socket.emit('checkLogin', user);
+
+	var data = {
+		groupName: user.getGroupName(),
+		pass: user.getPass()
+	}
+	socket.emit('checkLogin', data);
 }
 
 function processLogin(ok) {
@@ -45,6 +54,10 @@ function setup() {
 	socket.on('mouse', newDrawing);
 	socket.on('init', initDrawing);
 	socket.on('checkedLogin', processLogin);
+	socket.on('loggedIn', function(data) {
+		user.setLogged(data);
+		processLogin(data);
+	});
 }
 
 function initDrawing(dataArr) {
