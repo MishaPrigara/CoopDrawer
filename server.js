@@ -26,7 +26,7 @@ function newConnection(socket) {
 	socket.on('checkLogin', checkLogin);
 
 	function checkLogin(user) {
-		if(!groupIds[user.groupName]) {
+		if(!groupIds[user.groupName] || !groupIds[user.groupName].length) {
 			groupIds[user.groupName] = [];
 			pass[user.groupName] = user.pass;
 			saved[user.groupName] = [];
@@ -36,13 +36,14 @@ function newConnection(socket) {
 			users[socket.id] = user.groupName;
 			groupIds[user.groupName].push(socket);
 		}
-
+		console.log("Somebody joined " + user.groupName);
 		socket.emit('loggedIn', (pass[user.groupName] === user.pass));
 	}
 
 	socket.on('getData', sendData);
 
 	function sendData() {
+		if(!users[socket.id] || !saved[users[socket.id]])return;
 		// console.log("Tried to check but smth went wrong :-( " + saved[users[socket.id]].length);
 		// console.log(saved[users[socket.id]].length);
 		for(var i = 0; i < saved[users[socket.id]].length; ++i) {
@@ -64,16 +65,19 @@ function newConnection(socket) {
 	}
 
 	socket.on('disconnect', function () {
-		if(groupIds[users[socket.id]]) {
-	    var index = groupIds[users[socket.id]].indexOf(socket.id);
+		if(users[socket.id] !== null && groupIds[users[socket.id]]) {
+			console.log("Somebody left " + users[socket.id]);
+	    var index = groupIds[users[socket.id]].indexOf(socket);
 			if(index > -1) {
 				groupIds[users[socket.id]].splice(index, 1);
 			}
-			if(users[socket.id]) {
-				users[socket.id] = "";
+			if(!groupIds[users[socket.id]].lenght) {
+				console.log("Deleted");
+				saved[users[socket.id]] = [];
+				pass[users[socket.id]] = null;
 			}
+			console.log("Now size of " + users[socket.id] + " is " + groupIds[users[socket.id]].length);
+			users[socket.id] = null;
 		}
   });
-
-
 }

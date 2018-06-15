@@ -31,7 +31,7 @@ function login() {
 
 function processLogin(ok) {
 	if(!ok) {
-		local.reload();
+		location.reload();
 	}
 	user.deleteLogin();
 	background(15);
